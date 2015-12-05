@@ -1,0 +1,61 @@
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0 5px;
+}
+form {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+table {
+  width: 100%;
+  text-align: center;
+}
+table td:first-child {
+  width: 1px;
+  white-space: nowrap;
+}
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: arial;
+  font-size: 13px;
+}
+
+input {
+  text-align: center;
+  margin: 3px;
+  border: solid 1px #CCCCCC;
+  height: 24px;
+  width: 150px;
+  outline: none;
+}
+input:focus {
+  border-color: #83B2E3;
+}
+input:invalid {
+  border-color: #ff4b4b;
+  box-shadow: 0 0 1px #ff4b4b;
+}
+input[type=button],
+input[type=submit] {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+input[type=text] {
+  width: 80%;
+}
+
+body>form>div {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

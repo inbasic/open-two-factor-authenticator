@@ -1,0 +1,17 @@
+{
+  "fullName": "Open Two-Factor Authenticator",
+  "name": "iotfauthenticator",
+  "description": "A sync-able open-source two-factor authenticator",
+  "id": "jid0-Gn5jKmwQs6jL90ljMmn698q1bNn@jetpack",
+  "license": "Mozilla Public License, version 2.0",
+  "version": "0.1.0",
+  "author": "InBasic",
+  "lib": "lib",
+  "main": "./lib/common.js",
+  "url": "http://add0n.com/open-two-factor-authenticator.html",
+  "icon": "data/icons/32.png",
+  "icon64": "data/icons/64.png",
+  "permissions": {
+    "private-browsing": true
+  }
+}

@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+    <title>Adding a new account :: Open Two-Factor Authenticator</title>
+  </head>
+  <body data-type=picture>
+    <h1>Adding a new account:</h1>
+    <div id="method">
+      Select a method:
+      <input type="button" data-cmd="camera" value="Scan QR code" title="Use device's camera to scan the QR code.">
+      <input type="button" data-cmd="picture" value="Add an screenshot" title="Take an screenshot from the QR code and submit it">
+      <input type="button" data-cmd="manual" value="Enter key manually" title="Manually enter the secret key">
+    </div>
+    <div id="camera">
+      <canvas width=100 height=100></canvas>
+      <video autoplay></video>
+    </div>
+    <div id="picture">
+      <input type="file" accept="image/*">
+    </div>
+    <form id="manual">
+      <input type="text" placeholder="Enter secret key here and press enter" required>
+      <input type="submit" style="display: none;" value="Submit">
+    </form>
+    <div id="msg">Use the button to select an screenshot of a QR code image.</div>
+  </body>
+</html>

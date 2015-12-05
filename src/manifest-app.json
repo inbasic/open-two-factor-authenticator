@@ -1,0 +1,27 @@
+{
+  "name": "Open Two-Factor Authenticator",
+  "description": "A sync-able open-source two-factor authenticator",
+  "author": "InBasic",
+  "version": "0.1.0",
+  "manifest_version": 2,
+  "permissions": [
+    "storage",
+    "notifications",
+    "browser",
+    "clipboardWrite",
+    "clipboardRead",
+    "unlimitedStorage",
+    "videoCapture",
+    {"fileSystem": ["write", "retainEntries", "directory"]}
+  ],
+  "app": {
+    "background": {
+      "page": "lib/chrome/background.html"
+    }
+  },
+  "icons": {
+    "16": "data/icons/16.png",
+    "48": "data/icons/48.png",
+    "128": "data/icons/128.png"
+  }
+}

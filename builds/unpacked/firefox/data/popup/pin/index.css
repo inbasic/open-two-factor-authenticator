@@ -1,0 +1,49 @@
+html,
+body {
+  background-color: #fff;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+  margin: 5px;
+  font-family: arial;
+  font-size: 13px;
+}
+body {
+  display: flex;
+  flex-direction: column;
+}
+body>form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: 1;
+}
+input {
+  text-align: center;
+  margin: 3px;
+  border: solid 1px #CCCCCC;
+  height: 24px;
+  width: 150px;
+  outline: none;
+}
+input:focus {
+  border-color: #83B2E3;
+}
+input:invalid {
+  border-color: #ff4b4b;
+}
+input[type=button],
+input[type=submit] {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+p {
+  margin: 0;
+}
+body:not([data-type=register]) #repository,
+body:not([data-type=register]) #password-confirm,
+body:not([data-type=register]) #register-info {
+  display: none;
+}
+body:not([data-type=login]) #login-info {
+  display: none;
+}

@@ -1,0 +1,42 @@
+html,
+body {
+  height: calc(100% - 10px);
+}
+body {
+  font-family: arial;
+  font-size: 12px;
+  background-color: #fff;
+  margin: 5px 10px;
+  display: flex;
+  flex-direction: column;
+}
+h1 {
+  font-size: 120%;
+}
+#manual,
+#picture,
+#camera {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+#camera video {
+  flex: 1;
+  height: 80%;
+}
+#camera canvas {
+  display: none;
+}
+#manual input {
+  width: 80%;
+}
+body:not([data-type=camera]) #camera {
+    display: none;
+}
+body:not([data-type=picture]) #picture {
+    display: none;
+}
+body:not([data-type=manual]) #manual {
+    display: none;
+}

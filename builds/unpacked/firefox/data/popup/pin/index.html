@@ -1,0 +1,22 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css"/>
+  </head>
+  <body data-type=register>
+    <p id="login-info">To unlock please enter your master password</p>
+    <p id="register-info">For your safety, all data will be encrypted using the following master password.</p>
+    <form>
+      <input id="password" pattern=".{5,}" type="password" placeholder="Password" required>
+      <input id="password-confirm" type="password" placeholder="Confirm Password">
+      <input id="repository" type="button" value="Custom Repository">
+
+      <input type="submit" value="submit">
+    </form>
+    1: Password's minimum length is 5 characters.
+    <br>
+    2: Repository is a local directory used by the application to store encrypted secret keys in.
+  </body>
+  <script src="index.js"></script>
+</html>
