@@ -23,16 +23,24 @@ var self          = require('sdk/self'),
 Cu.import('resource://gre/modules/Promise.jsm');
 Cu.importGlobalProperties(['crypto', 'Blob']);
 var {Services} = Cu.import('resource://gre/modules/Services.jsm');
-var desktop = ['winnt', 'linux', 'darwin'].indexOf(platform) !== -1;
+var desktop = ['winnt', 'linux', 'darwin', 'openbsd'].indexOf(platform) !== -1;
 
 // Promise
 exports.Promise = Promise;
 exports.crypto = crypto;
 exports.btoa = base64.encode;
 exports.atob = base64.decode;
-exports.FileReader =  function () {
-  return Cc['@mozilla.org/files/filereader;1'].createInstance(Ci.nsIDOMFileReader);
-};
+exports.FileReader =  (function () {
+  try {
+    Cu.importGlobalProperties(['FileReader']);
+  }
+  catch (e) {}
+  return function () {
+    return typeof FileReader !== 'undefined' ?
+      new FileReader() : Cc['@mozilla.org/files/filereader;1'].createInstance(Ci.nsIDOMFileReader);
+  };
+})();
+
 exports.Blob = Blob;
 
 // Event Emitter
@@ -115,21 +123,24 @@ exports.button = (function () {
   }
 
   if (desktop) {
-    let button = require('sdk/ui/button/action').ActionButton({
+    let button = require('sdk/ui/button/toggle').ToggleButton({
       id: self.name,
       label: 'Open Two-Factor Authenticator',
       icon: {
         '16': './icons/16.png',
         '32': './icons/32.png'
       },
-      onClick: function() {
-        var popup = require('sdk/panel').Panel(options);
-        exports.ui.popup(popup);
-        popup.show({
-          width: config.popup.width,
-          height: config.popup.height,
-          position: button
-        });
+      onChange: function(state) {
+        if (state.checked) {
+          var popup = require('sdk/panel').Panel(options);
+          exports.ui.popup(popup);
+          popup.show({
+            width: config.popup.width,
+            height: config.popup.height,
+            position: button
+          });
+          popup.on('hide', () => button.state('window', {checked: false}));
+        }
       }
     });
   }
@@ -137,7 +148,7 @@ exports.button = (function () {
     exports.ui.popup(options);
     id = getNativeWindow().menu.add('Open Two-Factor Authenticator', null, function () {
       for each (var tab in tabs) {
-        if (tab.url.indexOf(data.url('')) === 0) {
+        if (tab && tab.url.indexOf(data.url('')) === 0) {
           tab.close();
         }
       }
@@ -361,8 +372,15 @@ exports.clipboard = (function () {
 
 unload.when(function () {
   for each (var tab in tabs) {
-    if (tab.url.indexOf(data.url('')) === 0) {
+    if (tab && tab.url.indexOf(data.url('')) === 0) {
       tab.close();
     }
   }
 });
+
+//startup
+exports.startup = function (callback) {
+  if (self.loadReason === 'install' || self.loadReason === 'startup') {
+    callback();
+  }
+};

@@ -9,6 +9,20 @@ if (typeof require !== 'undefined') {
 }
 /**** wrapper (end) ****/
 
+/* welcome page */
+app.startup(function () {
+  let version = config.welcome.version;
+  if (app.version() !== version) {
+    app.timer.setTimeout(function () {
+      app.tab.open(
+        'http://add0n.com/two-factor-authenticator.html?v=' + app.version() +
+        (version ? '&p=' + version + '&type=upgrade' : '&type=install')
+      );
+      config.welcome.version = app.version();
+    }, config.welcome.timeout);
+  }
+});
+
 /* app */
 var type = 'register';
 var mode = 'pin'; //pin or token
@@ -22,9 +36,7 @@ function update () {
     .then(function (length) {
       type = length ? 'login' : 'register';
       app.ui.send(type);
-    }).catch(function (e) {
-      console.error(e);
-    });
+    }).catch((e) => app.notification(e.message));
 }
 update();
 
@@ -61,10 +73,10 @@ function renew () {
             });
             accounts[obj.name] = obj;
           }
-        }).catch(ee => console.error(e, ee))
+        }).catch((ee) => console.error(`Cannot decrypt ${e.name}; ${ee.message}`))
       ));
     })
-    .catch(e => console.error(e));
+    .catch(e => app.notification(e.message));
 }
 
 // communication with iframes
@@ -113,7 +125,6 @@ app.ui.receive('cmd', function (obj) {
     delete tmp.path;
 
     let url = 'otpauth://totp/' + tmp.issuer + ':' + name + '?' + Object.keys(tmp).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(tmp[k])).join('&');
-
     (function (db) {
       db.unlock(pin).then(() => db.encrypt(url)).then(function (encoded) {
         return app.system.root.get()
@@ -124,22 +135,22 @@ app.ui.receive('cmd', function (obj) {
         accounts[obj.name] = obj;
         app.ui.send('token', obj.name);
       })
-      .catch(e => console.error(e));
+      .catch(e => app.notification(e.message));
     })(secure.DB());
   }
 });
-app.ui.receive('window-type', () => app.ui.send(type));
+app.ui.receive('window-type', () => update().then(() => app.ui.send(type)));
 
 /* new account */
 app.account.receive('otpauth', function (url) {
-  console.error(url);
   (function (db) {
     db.unlock(pin).then(() => db.encrypt(url)).then(function (encoded) {
       let name = parse(url).name + '.bin';
       return app.system.root.get()
         .then(d => app.system.file.create(d, name.replace(/(\<|\>|\:|\"|\/|\\|\||\?|\*)/g, '-'), encoded))
-        .then(renew);
-    }).catch(e => console.error(e));
+        .then(renew)
+        .then(() => app.notification(`Saved as "${name}"`));
+    }).catch(e => app.notification(e.message));
   })(secure.DB());
   app.tab.close('new-account/index.html');
 });
@@ -150,7 +161,7 @@ app.account.receive('notification', function (msg) {
 /* menu */
 app.ui.receive('menu', function (cmd) {
   if (cmd === 'open-faq') {
-    app.tab.open('http://add0n.com/open-two-factor-authenticator.html');
+    app.tab.open('http://add0n.com/two-factor-authenticator.html');
   }
   if (cmd === 'open-bugs') {
     app.tab.open('https://github.com/inbasic/open-two-factor-authenticator');
@@ -176,6 +187,6 @@ app.ui.receive('menu', function (cmd) {
       .then(app.system.folder.list)
       .then(entries => entries.filter(e => /\.bin$/.test(app.system.file.name(e))))
       .then(entries => entries.forEach(e => app.download(app.system.file.name(e))))
-      .catch(e => console.error(e));
+      .catch(e => app.notification(e.message));
   }
 });

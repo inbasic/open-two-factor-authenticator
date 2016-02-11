@@ -79,7 +79,8 @@ iframe {
   display: none;
 }
 body:not([data-type=token]) #menu li:nth-child(1),
-body:not([data-type=token]) #menu li:nth-child(2) {
+body:not([data-type=token-not-implimented]) #menu li:nth-child(2),
+body:not([data-type=token-not-implimented]) #menu li:nth-child(3) {
   opacity: 0.5;
   pointer-events: none;
 }

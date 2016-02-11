@@ -33,10 +33,12 @@ document.getElementById('repository').addEventListener('click', function () {
 }, false);
 
 window.addEventListener('hashchange', function () {
-  document.body.dataset.type = location.hash.substr(1);
+  document.body.dataset.type = location.hash.substr(1).split('?')[0];
 }, false);
-document.body.dataset.type = location.hash.substr(1);
+document.body.dataset.type = location.hash.substr(1).split('?')[0];
 
 window.setTimeout(function () {
   password.focus();
 }, 100);
+
+document.body.dataset.platform = parent.document.location.href.indexOf('type=extension') !== -1 ? 'extension' : 'app';

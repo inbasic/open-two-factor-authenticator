@@ -36,6 +36,9 @@ input[type=button],
 input[type=submit] {
   background-color: rgba(0, 0, 0, 0.1);
 }
+input[type=button] {
+  cursor: pointer;
+}
 p {
   margin: 0;
 }
@@ -45,5 +48,8 @@ body:not([data-type=register]) #register-info {
   display: none;
 }
 body:not([data-type=login]) #login-info {
+  display: none;
+}
+body[data-platform=extension] #repository {
   display: none;
 }

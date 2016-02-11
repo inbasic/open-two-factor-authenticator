@@ -8,7 +8,7 @@
   "author": "InBasic",
   "lib": "lib",
   "main": "./lib/common.js",
-  "url": "http://add0n.com/open-two-factor-authenticator.html",
+  "url": "http://add0n.com/two-factor-authenticator.html",
   "icon": "data/icons/32.png",
   "icon64": "data/icons/64.png",
   "permissions": {

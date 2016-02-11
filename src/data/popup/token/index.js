@@ -12,6 +12,14 @@ document.querySelector('#search input').addEventListener('keyup', function (e) {
   });
 });
 
+if (parent.app) {
+  parent.app.onKeyDown(function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.code === 'KeyF') {
+      document.querySelector('#search input').focus();
+    }
+  });
+}
+
 var reset = (function () {
   document.querySelector('#bar div:last-child').addEventListener('transitionend', function () {
     document.querySelector('#bar div:last-child').style['transition-duration'] = '0s';
@@ -42,11 +50,13 @@ var reset = (function () {
 window.setTimeout(reset, 100);
 
 function select (item) {
-  [].forEach.call(document.querySelectorAll('#accounts [data-type]'), i => i.dataset.selected = false);
-  item.dataset.selected = true;
-  document.querySelector('#token tr:first-child td').textContent = item.dataset.name;
-  selected = item.dataset.name;
-  reset();
+  if (item.dataset.type !== 'new') {
+    [].forEach.call(document.querySelectorAll('#accounts [data-type]'), i => i.dataset.selected = false);
+    item.dataset.selected = true;
+    document.querySelector('#token tr:first-child td').textContent = item.dataset.name;
+    selected = item.dataset.name;
+    reset();
+  }
 }
 
 document.addEventListener('click', function (e) {

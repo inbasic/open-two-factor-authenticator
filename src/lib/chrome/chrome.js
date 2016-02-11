@@ -4,7 +4,8 @@ window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFile
 
 var app = new EventEmitter();
 app.globals = {
-  browser: navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera'
+  browser: navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera',
+  app: chrome.fileSystem && chrome.fileSystem.restoreEntry
 };
 
 app.once('load', function () {
@@ -88,7 +89,7 @@ app.tab = {
       }
     }
   },
-  close: () => (),
+  close: function () {},
   list: function () {
     var d = app.Promise.defer();
     chrome.tabs.query({
@@ -116,27 +117,34 @@ app.version = function () {
 app.timer = window;
 
 // webapp
-chrome.app.runtime.onLaunched.addListener(function () {
-  chrome.app.window.create('data/popup/index.html', {
-    id: 'ui',
-    bounds: {
-      width: 400,
-      height: 500
-    }
+if (app.globals.app) {
+  chrome.app.runtime.onLaunched.addListener(function () {
+    chrome.app.window.create('data/popup/index.html', {
+      id: 'ui',
+      bounds: {
+        width: 400,
+        height: 500
+      }
+    });
   });
-});
+}
 
 // system
 app.system = (function () {
   return {
     open: function (url, id) {
-      chrome.app.window.create('data/' + url, {
-        id,
-        bounds: {
-          width: 500,
-          height: 600
-        }
-      });
+      if (app.globals.app) {
+        chrome.app.window.create('data/' + url, {
+          id,
+          bounds: {
+            width: 500,
+            height: 600
+          }
+        });
+      }
+      else {
+        chrome.tabs.create({url: 'data/' + url, active: true});
+      }
     },
     root: {
       set: function () {
@@ -160,40 +168,58 @@ app.system = (function () {
       },
       get: function () {
         let d = Promise.defer();
-        chrome.storage.local.get('root', function (storage) {
-          if (storage.root) {
-            try {
-              chrome.fileSystem.restoreEntry(storage.root, function (dirEntry) {
-                if (dirEntry) {
+        if (app.globals.app) {
+          chrome.storage.local.get('root', function (storage) {
+            if (storage.root) {
+              try {
+                chrome.fileSystem.restoreEntry(storage.root, function (dirEntry) {
+                  if (dirEntry) {
+                    d.resolve(dirEntry);
+                  }
+                  else {
+                    d.reject(new Error('Cannot locate the destination folder'));
+                  }
+                });
+              }
+              catch (e) {
+                d.reject(e);
+              }
+            }
+            else {
+              window.requestFileSystem(window.PERMANENT, 1024 * 1024, function (fs) {
+                fs.root.getDirectory('iotfautenticator', {create: true}, function (dirEntry) {
                   d.resolve(dirEntry);
-                }
-                else {
-                  d.reject(new Error('Cannot locate the destination folder'));
-                }
-              });
-            }
-            catch (e) {
-              d.reject(e);
-            }
-          }
-          else {
-            window.requestFileSystem(window.PERMANENT, 1024 * 1024, function (fs) {
-              fs.root.getDirectory('iotfautenticator', {create: true}, function (dirEntry) {
-                d.resolve(dirEntry);
+                }, e => d.reject(e));
               }, e => d.reject(e));
-            }, e => d.reject(e));
-          }
-        });
+            }
+          });
+        }
+        else {
+          chrome.storage.local.get('file-names', function (storage) {
+            if (storage['file-names']) {
+              d.resolve(storage['file-names']);
+            }
+            else {
+              d.resolve([]);
+            }
+          });
+        }
         return d.promise;
       }
     },
     folder: {
       list: function (dirEntry) {
         let d = Promise.defer();
-        dirEntry.createReader().readEntries (function (results) {
-          console.error(results);
-          d.resolve(results);
-        }, e => d.reject(e));
+        if (app.globals.app) {
+          dirEntry.createReader().readEntries (function (results) {
+            d.resolve(results);
+          }, e => d.reject(e));
+        }
+        else {
+          chrome.storage.local.get(null, function (storage) {
+            d.resolve(dirEntry.map(n => storage[n]));
+          });
+        }
         return d.promise;
       }
     },
@@ -220,24 +246,54 @@ app.system = (function () {
             fileWriter.write(blob);
           }, e => d.reject(e));
         }
-
-        if (name) {
-          dirEntry.getFile(name, {create: true}, (f) => write(f), e => d.reject(e));
+        if (app.globals.app) {
+          if (name) {
+            dirEntry.getFile(name, {create: true}, (f) => write(f), e => d.reject(e));
+          }
+          else {
+            app.system.root.get().then(function (d) {
+              d.getFile(dirEntry, {create: true}, (f) => write(f), e => d.reject(e));
+            }, e => d.reject(e));
+          }
         }
         else {
-          app.system.root.get().then(function (d) {
-            d.getFile(dirEntry, {create: true}, (f) => write(f), e => d.reject(e));
-          }, e => d.reject(e));
+          if (name) {
+            let fileName = 'file-name-' + name;
+            let obj = {};
+            obj[fileName] = {content, fullPath: name};
+            chrome.storage.local.set(obj, function () {
+              chrome.storage.local.set({
+                'file-names': dirEntry.concat(fileName).filter((e, i, l) => l.indexOf(e) === i)
+              }, () => d.resolve());
+            });
+          }
+          else {
+            let fileName = 'file-name-' + dirEntry;
+            let obj = {};
+            obj[fileName] = {content, fullPath: dirEntry};
+            chrome.storage.local.set(obj, function () {
+              chrome.storage.local.get('file-names', function (storage) {
+                chrome.storage.local.set({
+                  'file-names': (storage['file-names'] || []).concat(fileName).filter((e, i, l) => l.indexOf(e) === i)
+                }, () => d.resolve());
+              });
+            });
+          }
         }
         return d.promise;
       },
       read: function (fileEntry) {
         let d = Promise.defer();
-        fileEntry.file(function (file) {
-          let reader = new FileReader();
-          reader.onloadend = () => d.resolve(reader.result);
-          reader.readAsText(file);
-        }, e => d.reject(e));
+        if (app.globals.app) {
+          fileEntry.file(function (file) {
+            let reader = new FileReader();
+            reader.onloadend = () => d.resolve(reader.result);
+            reader.readAsText(file);
+          }, e => d.reject(e));
+        }
+        else {
+          d.resolve(fileEntry.content);
+        }
         return d.promise;
       }
     }
@@ -257,4 +313,27 @@ app.clipboard = {
     document.execCommand('copy', false, null);
     document.oncopy = undefined;
   }
-}
+};
+
+app.startup = (function () {
+  let loadReason, callback;
+  function check () {
+    if (loadReason === 'startup' || loadReason === 'install') {
+      if (callback) {
+        callback();
+      }
+    }
+  }
+  chrome.runtime.onInstalled.addListener(function (details) {
+    loadReason = details.reason;
+    check();
+  });
+  chrome.runtime.onStartup.addListener(function () {
+    loadReason = 'startup';
+    check();
+  });
+  return function (c) {
+    callback = c;
+    check();
+  };
+})();
