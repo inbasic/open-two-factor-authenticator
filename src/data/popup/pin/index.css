@@ -4,7 +4,7 @@ body {
   width: calc(100% - 10px);
   height: calc(100% - 10px);
   margin: 5px;
-  font-family: arial;
+  font-family: 'Source Sans Pro',sans-serif;
   font-size: 13px;
 }
 body {

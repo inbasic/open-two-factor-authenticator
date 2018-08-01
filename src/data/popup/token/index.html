@@ -8,11 +8,13 @@
   <body>
     <div id="bar">
       <div></div>
-      <div></div>
     </div>
-    <div id="search">
-      <input type="search" placeholder="Filter">
-    </div>
+    <table id="search">
+      <tr>
+        <td><input type="search" placeholder="Filter"></td>
+        <td align="right"><input type="button" value="Exit" data-cmd="exit"></td>
+      </tr>
+    </table>
     <div id="token">
     <div>
       <table>
@@ -21,7 +23,7 @@
             <td colspan="2" valign="bottom">account name</td>
           </tr>
           <tr>
-            <td>------</td><td data-cmd='copy' title="Copy to clipboard"></td>
+            <td><span>---</span><span>---</span></td><td data-cmd='copy' title="Copy to clipboard"></td>
           </tr>
         </tbody>
       </table>

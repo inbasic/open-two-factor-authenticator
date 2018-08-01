@@ -3,7 +3,7 @@ body {
   height: calc(100% - 10px);
 }
 body {
-  font-family: arial;
+  font-family: 'Source Sans Pro',sans-serif;
   font-size: 12px;
   background-color: #fff;
   margin: 5px 10px;

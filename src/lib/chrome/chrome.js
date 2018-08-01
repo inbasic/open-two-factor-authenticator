@@ -14,6 +14,17 @@ app.once('load', function () {
   script.src = '../common.js';
 });
 
+if (!Promise.defer) {
+  Promise.defer = function () {
+    let deferred = {};
+    let promise = new Promise(function (resolve, reject) {
+      deferred.resolve = resolve;
+      deferred.reject  = reject;
+    });
+    deferred.promise = promise;
+    return deferred;
+  };
+}
 app.Promise = Promise;
 app.FileReader = FileReader;
 app.Blob = Blob;
@@ -104,7 +115,7 @@ app.tab = {
 app.notification = function (text) {
   chrome.notifications.create(null, {
     type: 'basic',
-    iconUrl: chrome.runtime.getURL('./') + 'data/icons/48.png',
+    iconUrl: chrome.runtime.getURL('./') + 'data/icons/128.png',
     title: 'Open Two-Factor Authenticator',
     message: text
   }, function () {});
@@ -119,13 +130,14 @@ app.timer = window;
 // webapp
 if (app.globals.app) {
   chrome.app.runtime.onLaunched.addListener(function () {
+    app.emit('app:active');
     chrome.app.window.create('data/popup/index.html', {
       id: 'ui',
       bounds: {
         width: 400,
         height: 500
       }
-    });
+    }, win => win.onClosed.addListener(() => app.emit('app:idle')));
   });
 }
 

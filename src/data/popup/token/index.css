@@ -5,7 +5,7 @@ body {
 body {
   margin: 0;
   font-size: 12px;
-  font-family: arial;
+  font-family: 'Source Sans Pro',sans-serif;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -14,46 +14,51 @@ body {
 #bar {
   width: 100%;
   background-color: rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: row-reverse;
 }
 #bar>div {
   height: 5px;
-}
-#bar div:first-child {
-  background-color: transparent;
-}
-#bar div:last-child {
-  flex: 1;
   transition-timing-function: linear;
   -webkit-transition-timing-function: linear;
-  transition-property: margin;
-  -webkit-transition-property: margin;
+  transition-property: width;
+  -webkit-transition-property: width;
+}
+#bar div:first-child {
   background-color: #1b7180;
 }
-#search {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 5px;
+#bar div.active {
+  width: 0% !important;
 }
-#search input {
+
+#search {
+  width: 100%;
+}
+#search input[type=search] {
   width: 200px;
   opacity: 0.6;
   outline: none;
   border: solid 1px rgba(0, 0, 0, 0.1);
   height: 24px;
 }
+#search input[type=button] {
+  outline: none;
+  border: solid 1px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  height: 24px;
+  cursor: pointer;
+}
 @-moz-document url-prefix() {
   #search input {
     padding-left: 5px;
   }
 }
-#search input:hover {
+#search input[type=search]:hover {
   opacity: 0.8;
 }
-#search input:focus {
+#search input[type=search]:focus {
   opacity: 1;
+  border-color: #4D90FE;
+}
+#search input[type=button]:active {
   border-color: #4D90FE;
 }
 #token {
@@ -63,9 +68,11 @@ body {
   height: 200px;
 }
 #token table {
+  font-family: sans-serif;
   width: 1px;
   white-space: nowrap;
-  font-size: 200%;
+  font-size: 250%;
+  font-weight: 200;
 }
 #token table td {
   text-align: center;
@@ -75,6 +82,12 @@ body {
 }
 #token tr:last-child td:first-child {
   text-indent: 16px;
+}
+#token tr:last-child td:first-child span:first-child {
+  padding-right: 6px;
+}
+#token tr:last-child td:first-child span:last-child {
+  padding-left: 6px;
 }
 #token tr:last-child td:last-child {
   width: 32px;
@@ -95,7 +108,9 @@ body {
   overflow-y: overlay;
   height: 100%;
 }
-#accounts-container::-webkit-scrollbar { width: 0 !important }
+#accounts-container::-webkit-scrollbar {
+  width: 0 !important
+}
 @-moz-document url-prefix() {
   #accounts-container {
 
@@ -125,7 +140,8 @@ body {
   z-index: 1;
 }
 #accounts>div[data-selected=true] {
-  border-color: blue;
+  border-color: #878787;
+  box-shadow: 0 0 8px rgba(135, 135, 135, 0.5);
   z-index: 1000;
 }
 #accounts>div[data-fade=true] {
@@ -219,4 +235,10 @@ body {
 }
 #accounts>div[data-type=amazon] {
   background-image: url('icons/amazon.png');
+}
+#accounts>div[data-type=logmein] {
+  background-image: url('icons/LogMeIn.png');
+}
+#accounts>div[data-type=dashlane] {
+  background-image: url('icons/dashlane.png');
 }

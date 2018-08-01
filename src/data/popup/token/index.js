@@ -1,9 +1,18 @@
 'use strict';
 
 var duration = 30;
+/*
+
 var selected = (function (arr) {
   return arr && arr.length ? decodeURIComponent(arr[1]) : '';
 })(/selected\=([^\&]+)/.exec(document.location.search));
+console.error(document.location.search, selected);
+*/
+
+var selected = {
+  name: '',
+  issuer: ''
+};
 
 document.querySelector('#search input').addEventListener('keyup', function (e) {
   var value = e.target.value.toLowerCase();
@@ -21,40 +30,52 @@ if (parent.app) {
 }
 
 var reset = (function () {
-  document.querySelector('#bar div:last-child').addEventListener('transitionend', function () {
-    document.querySelector('#bar div:last-child').style['transition-duration'] = '0s';
-    document.querySelector('#bar div:last-child').style['-webkit-transition-duration'] = '0s';
-    document.querySelector('#bar div:last-child').style['margin-right'] = 0;
-    document.querySelector('#bar div:first-child').style.width = '0';
-    window.setTimeout(reset, 0);
+  let bar = document.getElementById('bar').querySelector('div');
+  bar.addEventListener('transitionend', function () {
+    reset();
   });
+
   return function () {
-    var epoch = Math.round(new Date().getTime() / 1000.0) - 1;
-    var current = epoch / duration;
-    var reference = Math.floor(current);
-    var ratio = 1 - current + reference;
+    bar.classList.remove('active');
 
-    document.querySelector('#bar div:first-child').style.width = ((1 - ratio) * 100) + '%';
-    document.querySelector('#bar div:last-child').style['margin-right'] = (ratio * 100) + '%';
-    document.querySelector('#bar div:last-child').style['transition-duration'] = (ratio * duration) + 's';
-    document.querySelector('#bar div:last-child').style['-webkit-transition-duration'] = (ratio * duration) + 's';
+    let epoch = (new Date()).getTime();
+    let d = duration * 1000;
+    let ratio = 1 - epoch / d + Math.floor(epoch / d);
 
-    if (selected) {
+    bar.style['transition-duration'] = '0s';
+    bar.style.width = (ratio * 100) + '%';
+    window.setTimeout(() => {
+      bar.classList.add('active');
+      bar.style['transition-duration'] = (ratio * duration) + 's';
+    }, 10);
+    if (selected.name) {
       parent.postMessage({
         'cmd': 'token-selected',
-        'name': selected
+        'name': selected.name,
+        'issuer': selected.issuer
       }, '*');
     }
   };
 })();
-window.setTimeout(reset, 100);
+reset();
+
+function isScrolledIntoView (el) {
+  let elemTop = el.getBoundingClientRect().top;
+  let elemBottom = el.getBoundingClientRect().bottom;
+
+  return (elemTop >= 0) && (elemBottom <= window.innerHeight);
+}
 
 function select (item) {
   if (item.dataset.type !== 'new') {
     [].forEach.call(document.querySelectorAll('#accounts [data-type]'), i => i.dataset.selected = false);
     item.dataset.selected = true;
+    if (!isScrolledIntoView(item)) {
+      item.scrollIntoView();
+    }
     document.querySelector('#token tr:first-child td').textContent = item.dataset.name;
-    selected = item.dataset.name;
+    selected.name = item.dataset.name;
+    selected.issuer = item.dataset.issuer;
     reset();
   }
 }
@@ -72,12 +93,15 @@ document.addEventListener('click', function (e) {
   if (cmd === 'copy') {
     parent.postMessage({
       cmd: 'token-copy',
-      txt: document.querySelector('#token tr:last-child td:first-child').textContent
+      txt: document.querySelector('#token tr:last-child td:first-child').dataset.pin
+    }, '*');
+  }
+  else if (cmd === 'exit') {
+    parent.postMessage({
+      cmd: 'token-exit'
     }, '*');
   }
 }, false);
-
-var timeout;
 
 window.addEventListener('message', function (e) {
   var cmd = e.data.cmd;
@@ -87,20 +111,23 @@ window.addEventListener('message', function (e) {
     var item = document.querySelector('[data-type=new]').cloneNode(true);
     item.dataset.type = obj.issuer.toLowerCase();
     item.dataset.name = obj.name;
+    item.dataset.issuer = obj.issuer;
     item.querySelector('tr:first-child td').textContent = obj.issuer;
     item.querySelector('tr:last-child td').textContent = obj.name;
     item.title = obj.name;
     accounts.appendChild(item);
-    if (!selected) {
-      window.clearTimeout(timeout);
-      timeout = window.setTimeout(select, 100, item);
-    }
-    if (selected === obj.name) {
+    if (obj.selected) {
+      selected.name = obj.name;
+      selected.issuer = obj.issuer;
       select(item);
     }
+
   }
   if (cmd === 'token-pin') {
-    document.querySelector('#token tr:last-child td').textContent = e.data.pin;
+    let td = document.querySelector('#token tr:last-child td');
+    td.dataset.pin = e.data.pin;
+    td.querySelector('span:first-child').textContent = e.data.pin.substr(0, 3);
+    td.querySelector('span:last-child').textContent = e.data.pin.substr(3);
   }
 }, false);
 parent.postMessage({cmd: 'token-accounts'}, '*');

@@ -35,6 +35,10 @@ function update () {
     .then(entries => entries.filter(e => /\.bin$/.test(app.system.file.name(e))).length)
     .then(function (length) {
       type = length ? 'login' : 'register';
+      if (type === 'login' && pin) {
+        mode = 'token';
+        app.ui.send('token');
+      }
       app.ui.send(type);
     }).catch((e) => app.notification(e.message));
 }
@@ -62,16 +66,19 @@ function renew () {
     .then(entries => entries.filter(e => /\.bin$/.test(app.system.file.name(e))))
     //.then(entries => entries.sort((a, b) => app.system.file.name(a) > app.system.file.name(b)))
     .then(function (entries) {
-      return app.Promise.all(entries.map(e => app.system.file.read(e).then(db.decrypt)
+      return app.Promise.all(entries.map(e => app.system.file.read(e)
+        .then(db.decrypt)
         .then(url => parse(url, app.system.file.name(e)))
         .then(function (obj) {
-          if (!accounts[obj.name] || (accounts[obj.name] && obj.secret !== accounts[obj.name].secret)) {
+          let name = obj.name + '/' + obj.issuer;
+          if (!accounts[name] || (accounts[name] && obj.secret !== accounts[name].secret)) {
             app.ui.send('token-account', {
               name: obj.name,
               issuer: obj.issuer,
-              period: +(obj.period || 30)
+              period: +(obj.period || 30),
+              selected: config.core.selected ? config.core.selected === name : true
             });
-            accounts[obj.name] = obj;
+            accounts[name] = obj;
           }
         }).catch((ee) => console.error(`Cannot decrypt ${e.name}; ${ee.message}`))
       ));
@@ -80,59 +87,66 @@ function renew () {
 }
 
 // communication with iframes
-var selected = '';
+var selected = config.core.selected;
 app.ui.receive('cmd', function (obj) {
   if (obj.cmd === 'custom-repository') {
-    app.system.root.set().then(update);
+    app.system.root.set().then(update).catch(function () {});
   }
-  if (obj.cmd === 'pin-submit') {
+  else if (obj.cmd === 'pin-submit') {
     pin = obj.pin;
     mode = 'token';
     app.ui.send('token');
   }
-  if (obj.cmd === 'token-item' && obj.type === 'new') {
+  else if (obj.cmd === 'token-exit') {
+    pin = '';
+    mode = 'pin';
+    app.ui.send('login');
+  }
+  else if (obj.cmd === 'token-item' && obj.type === 'new') {
     app.system.open('new-account/index.html', 'new-account');
   }
-  if (obj.cmd === 'token-selected') {
-    selected = obj.name;
-    if (accounts[obj.name]) {
-      totp.gen(totp.base32ToBuffer(accounts[obj.name].secret)).then(function (c) {
+  else if (obj.cmd === 'token-selected') {
+    selected = obj.name + '/' + obj.issuer;
+    if (accounts[selected]) {
+      totp.gen(totp.base32ToBuffer(accounts[selected].secret)).then(function (c) {
         app.ui.send('token-pin', c);
       });
     }
+    config.core.selected = selected;
   }
-  if (obj.cmd === 'token-accounts') {
+  else if (obj.cmd === 'token-accounts') {
     accounts = {};
     renew();
   }
-  if (obj.cmd === 'token-copy') {
+  else if (obj.cmd === 'token-copy') {
     app.clipboard.copy(obj.txt);
     app.notification('Token is copied to the clipboard');
   }
-  if (obj.cmd === 'notification') {
+  else if (obj.cmd === 'notification') {
     app.notification(obj.msg);
   }
-  if (obj.cmd === 'edit-init') {
+  else if (obj.cmd === 'edit-init') {
     app.ui.send('edit-init', accounts[selected]);
   }
-  if (obj.cmd === 'edit-submit') {
-    let tmp = Object.assign(accounts[obj['old-name']], {
+  else if (obj.cmd === 'edit-submit') {
+    let oldname = obj['old-name'] + '/' + obj['old-issuer'];
+    let tmp = Object.assign(accounts[oldname], {
       name: obj.name,
       issuer: obj.issuer
     });
-    var name = tmp.name;
+    var newname = tmp.name;
     delete tmp.name;
     delete tmp.path;
 
-    let url = 'otpauth://totp/' + tmp.issuer + ':' + name + '?' + Object.keys(tmp).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(tmp[k])).join('&');
+    let url = 'otpauth://totp/' + tmp.issuer + ':' + newname + '?' + Object.keys(tmp).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(tmp[k])).join('&');
     (function (db) {
       db.unlock(pin).then(() => db.encrypt(url)).then(function (encoded) {
         return app.system.root.get()
           .then(() => app.system.file.create(obj.path, null, encoded));
       })
       .then(function () {
-        delete accounts[obj['old-name']];
-        accounts[obj.name] = obj;
+        delete accounts[oldname];
+        accounts[newname + '/' + tmp.issuer] = obj;
         app.ui.send('token', obj.name);
       })
       .catch(e => app.notification(e.message));
@@ -147,7 +161,7 @@ app.account.receive('otpauth', function (url) {
     db.unlock(pin).then(() => db.encrypt(url)).then(function (encoded) {
       let name = parse(url).name + '.bin';
       return app.system.root.get()
-        .then(d => app.system.file.create(d, name.replace(/(\<|\>|\:|\"|\/|\\|\||\?|\*)/g, '-'), encoded))
+        .then(d => app.system.file.create(d, name.replace(/(<|\>|\:|\"|\/|\\|\||\?|\*)/g, '-'), encoded))
         .then(renew)
         .then(() => app.notification(`Saved as "${name}"`));
     }).catch(e => app.notification(e.message));
@@ -189,4 +203,20 @@ app.ui.receive('menu', function (cmd) {
       .then(entries => entries.forEach(e => app.download(app.system.file.name(e))))
       .catch(e => app.notification(e.message));
   }
+});
+
+/**/
+let idle;
+app.on('app:idle', function () {
+  if (!idle) {
+    // console.error('app:idle');
+    idle = app.timer.setTimeout(function () {
+      idle = null;
+      pin = null;
+    }, Object.keys(accounts).length ? config.core.timeout * 60 * 1000 : 0);
+  }
+});
+app.on('app:active', function () {
+  // console.error('app:active');
+  idle = app.timer.clearTimeout(idle);
 });

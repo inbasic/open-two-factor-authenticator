@@ -9,6 +9,7 @@ document.querySelector('form').addEventListener('submit', function (e) {
   parent.postMessage({
     'cmd': 'edit-submit',
     'name': id.value,
+    'old-issuer': old.issuer,
     'issuer': issuer.value,
     'path': old.path,
     'old-name': old.name
@@ -29,5 +30,6 @@ window.addEventListener('message', function (e) {
     issuer.value = obj.issuer;
     old.name = obj.name;
     old.path = obj.path;
+    old.issuer = obj.issuer;
   }
 });

@@ -23,7 +23,7 @@ var self          = require('sdk/self'),
 Cu.import('resource://gre/modules/Promise.jsm');
 Cu.importGlobalProperties(['crypto', 'Blob']);
 var {Services} = Cu.import('resource://gre/modules/Services.jsm');
-var desktop = ['winnt', 'linux', 'darwin', 'openbsd'].indexOf(platform) !== -1;
+var desktop = platform !== 'android';
 
 // Promise
 exports.Promise = Promise;
@@ -64,6 +64,7 @@ exports.ui = (function () {
         p.destroy();
         popup = null;
       });
+
       callbacks.forEach(obj => popup.port.on(obj.id, obj.callback));
     },
     hide: function () {
@@ -90,9 +91,17 @@ exports.ui = (function () {
       let pm = pageMod.PageMod(options);
       pm.on('attach', function (worker) {
         array.add(workers, worker);
+        exports.emit('app:active');
         worker.on('pageshow', function () { array.add(workers, this); });
-        worker.on('pagehide', function () { array.remove(workers, this); });
-        worker.on('detach', function () { array.remove(workers, this); });
+        worker.on('pagehide', function () {
+          array.remove(workers, this);
+          exports.emit('app:idle');
+        });
+        worker.on('detach', function () {
+          array.remove(workers, this);
+          exports.emit('app:idle');
+        });
+
         callbacks.forEach(obj => worker.port.on(obj.id, obj.callback));
       });
     },
@@ -139,20 +148,28 @@ exports.button = (function () {
             height: config.popup.height,
             position: button
           });
-          popup.on('hide', () => button.state('window', {checked: false}));
+          popup.on('show', () => exports.emit('app:active'));
+          popup.on('hide', () => {
+            exports.emit('app:idle');
+            button.state('window', {checked: false});
+          });
         }
       }
     });
   }
   else {
     exports.ui.popup(options);
-    id = getNativeWindow().menu.add('Open Two-Factor Authenticator', null, function () {
-      for each (var tab in tabs) {
-        if (tab && tab.url.indexOf(data.url('')) === 0) {
-          tab.close();
+    id = getNativeWindow().menu.add({
+      name: 'Open Two-Factor Authenticator',
+      parent: getNativeWindow().menu.toolsMenuID,
+      callback: function () {
+        for (let tab of tabs) {
+          if (tab && tab.url.startsWith(data.url(''))) {
+            tab.close();
+          }
         }
+        tabs.open(data.url('popup/index.html'));
       }
-      tabs.open(data.url('popup/index.html'));
     });
     unload.when(() => getNativeWindow().menu.remove(id));
   }
@@ -226,7 +243,7 @@ exports.tab = {
     exports.ui.hide();
   },
   close: function (url) {
-    for each (var tab in tabs) {
+    for (let tab of tabs) {
       if (tab.url.indexOf(data.url(url)) === 0) {
         tab.close();
       }
@@ -234,7 +251,7 @@ exports.tab = {
   },
   list: function () {
     var temp = [];
-    for each (var tab in tabs) {
+    for (let tab of tabs) {
       temp.push(tab);
     }
     return Promise.resolve(temp);
@@ -371,7 +388,7 @@ exports.clipboard = (function () {
 })();
 
 unload.when(function () {
-  for each (var tab in tabs) {
+  for (let tab of tabs) {
     if (tab && tab.url.indexOf(data.url('')) === 0) {
       tab.close();
     }
