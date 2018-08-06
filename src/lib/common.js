@@ -52,7 +52,12 @@ function parse (url, path) {
     query[decodeURIComponent(b[0])] = decodeURIComponent(b[1] || '').trim();
   }
   query.name = decodeURIComponent(url.split('?')[0].substr(15)).replace(query.issuer + ':', '').trim();
-  query.issuer = query.issuer || query.name.split('@')[1].split('.')[0] || query.name;
+  try{
+    query.issuer =  query.issuer || query.name.split('@')[1].split('.')[0] || query.name;
+  }
+  catch(err){
+    query.issuer = query.issuer || decodeURIComponent(url.split('?')[0].substr(15)).split('%3A')[0].split(':')[0];
+  }
   query.path = path;
 
   return query;
