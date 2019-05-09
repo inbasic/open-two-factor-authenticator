@@ -2,7 +2,7 @@
   "name": "Open Two-Factor Authenticator",
   "description": "An open-source two-factor Time-based One-Time Password (TOTP) authenticator",
   "author": "InBasic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "manifest_version": 2,
   "permissions": [
     "storage",
