@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add a new Entry</title>
+  <style type="text/css">
+    :root {
+      --bg-dark-i: #f5f5f5;
+      --bg-dark-ii: #e2e2e2;
+      --bg-red: red;
+      --bg-white: whitesmoke;
+      --color-footer: #636363;
+      --bg-selected: #c0ffee;
+    }
+    body {
+      font-family: "Helvetica Neue",Helvetica,sans-serif;
+      font-size: 13px;
+      margin: 10px;
+    }
+    input[type=password],
+    input[type=number],
+    input[type=text] {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      border: none;
+      background-color: var(--bg-dark-i);
+      padding: 5px;
+      outline: none;
+      margin-bottom: 5px;
+    }
+    input[type=password]:focus,
+    input[type=number]:focus,
+    input[type=text]:focus {
+      background-color: var(--bg-dark-ii);
+    }
+    input[type=button],
+    input[type=submit] {
+      background-color: var(--bg-dark-i);
+      padding: 5px 10px;
+      cursor: pointer;
+      outline: none;
+    }
+    input[type=file] {
+      display: none;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    form {
+      height: calc(100vh - 20px);
+      display: flex;
+      flex-direction: column;
+    }
+    #toolbar {
+      margin-top: 20px;
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body>
+  <form>
+    <table width=100%>
+      <colgroup>
+        <col width="120">
+        <col>
+      </colgroup>
+      <tr>
+        <td>Secret</td>
+        <td><input type="text" id="secret" placeholder="Actaul secret (will be encrypted)"></td>
+      </tr>
+      <tr>
+        <td>Encrypted Secret</td>
+        <td><input type="text" autocomplete="off" id="en_secret" placeholder="Use this box instead if you have the data from the old version"></td>
+      </tr>
+      <tr>
+        <td>Master Password</td>
+        <td><input type="password" id="password" pattern=".{4,}" required placeholder="This password is used to encrypt your secret (min of 4 chars)"></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="color: #585252; text-align: justify;">
+          <p>If you are migrating from 0.1.x version, open an encrypted credential (*.bin) with a text editor and paste the content to the encrypted secret box. There is no need to enter the secret as the secret is already encrypted. If you are adding a new credentials, you can optionally use the "Scan QR code" button for the extension to fill all the required fields for you or you may enter the secret and the password manually. Note that the password is required for encrypting and decrypting the secret.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td><input type="text" autocomplete="off" id="name" required placeholder="Display name"></td>
+      </tr>
+      <tr>
+        <td>Digits</td>
+        <td><input type="number" id="digits" min=6 max=8 placeholder="number of output digits (6 or 8); default is 6"></td>
+      </tr>
+      <tr>
+        <td>Period</td>
+        <td><input type="number" id="period" min="10" placeholder="validation period (default is 30s)"></td>
+      </tr>
+      <tr>
+        <td>Icon</td>
+        <td><select id="icon">
+          <option value="">General</option>
+          <option value="gmail">Gmail</option>
+          <option value="google">Google</option>
+          <option value="yahoo">Yahoo</option>
+          <option value="logmein">LogMeIn</option>
+          <option value="facebook">Facebook</option>
+          <option value="nearlyfreespeech">NearlyFreeSpeech</option>
+          <option value="amazon">Amazon</option>
+          <option value="flickr">Flickr</option>
+          <option value="app_net">App.net</option>
+          <option value="outlook">Outlook</option>
+          <option value="bitcoin" keywords="blockchain|cryptonator|xcoins">Bitcoin</option>
+          <option value="github">Github</option>
+          <option value="twitter">Twitter</option>
+          <option value="dashlane">Dashlane</option>
+          <option value="dropbox">Dropbox</option>
+          <option value="zoho">Zoho</option>
+          <option value="firefox">Firefox</option>
+          <option value="mega">Mega</option>
+          <option value="paypal">PayPal</option>
+          <option value="evernote">EverNote</option>
+          <option value="microsoft">Microsoft</option>
+        </select></td>
+      </tr>
+    </table>
+    <div id="toolbar">
+      <canvas id="canvas" style="display: none;"></canvas>
+      <input type="button" value="Scan QR Code" style="margin-right: 10px" id="qr">
+      <input type="submit" style="float: right">
+    </div>
+  </form>
+  <script type="text/javascript" src="jsQR.js"></script>
+  <script type="text/javascript" src="../popup/secure.js"></script>
+  <script type="text/javascript" src="index.js"></script>
+</body>
+</html>
