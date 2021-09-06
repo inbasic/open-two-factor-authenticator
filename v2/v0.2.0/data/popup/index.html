@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <header>Open Two Factor Authenticator
+    <span class="box" id="plus" title="Add new credentials"></span>
+    <span class="box" id="refresh" title="Restart"></span>
+  </header>
+  <div id="body">
+    <div id="welcome">
+      <form>
+        <span>Enter a Master Password<sup>1</sup>:</span>
+        <input type="password" id="password" pattern=".{4,}" autofocus required>
+      </form>
+      <div>
+        1. Only credentials that can be unlocked with this master password are going to be listed
+      </div>
+    </div>
+    <div>
+      <div>
+        <div id="manager">
+          <template id="entry">
+            <label class="box entry">
+              <input type="radio" name="entry">
+              <input type="button" data-command="remove">
+            </label>
+          </template>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div id="token" class="hidden">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <div id="progress" style="--period: 30s;" class="hidden"></div>
+  <div id="confirm" class="hidden">
+    <div>
+      <span>Deleting an entry is not reversible. Are you sure?</span>
+      <div>
+        <input type="button" value="No" data-command="false">&nbsp;
+        <input type="button" value="Yes" data-command="true">
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="secure.js"></script>
+  <script type="text/javascript" src="index.js"></script>
+</body>
+</html>

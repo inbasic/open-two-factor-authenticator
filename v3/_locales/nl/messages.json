@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "Een open-source authenticator met twee factoren, Time-based One-Time Password (TOTP), met SHA-256 beveiligde opslag"
+  }
+}

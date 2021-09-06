@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "An open-source two-factor Time-based One-Time Password (TOTP) authenticator with SHA-256 secure storage"
+  }
+}

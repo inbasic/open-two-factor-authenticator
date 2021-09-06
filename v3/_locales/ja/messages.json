@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "SHA-256セキュアストレージを備えたオープンソースの2ファクタTOTP（Time-based One-Time Password）認証システム"
+  }
+}

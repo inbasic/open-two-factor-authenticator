@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "Ein quelloffener Zwei-Faktor-Authentifikator mit zeitbasiertem Einmal-Passwort (TOTP) und sicherer SHA-256-Speicherung"
+  }
+}

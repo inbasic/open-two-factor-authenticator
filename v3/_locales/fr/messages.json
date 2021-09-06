@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "Un authentificateur à deux facteurs basé sur le mot de passe à usage unique (TOTP) avec stockage sécurisé SHA-256."
+  }
+}

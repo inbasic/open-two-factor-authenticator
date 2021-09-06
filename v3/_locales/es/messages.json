@@ -1,0 +1,5 @@
+{
+  "description": {
+    "message": "Un autentificador de dos factores basado en el tiempo y con contraseña única (TOTP) de código abierto con almacenamiento seguro SHA-256"
+  }
+}

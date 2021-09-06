@@ -1,0 +1,276 @@
+:root {
+  --bg-dark-i: #f5f5f5;
+  --bg-dark-ii: #e2e2e2;
+  --bg-red: red;
+  --bg-white: whitesmoke;
+  --color-footer: #636363;
+  --bg-selected: #c0ffee;
+}
+body {
+  width: 650px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+}
+body.empty::before {
+  content: 'There is no credential to show either because the master password is wrong or there is no credential in the storage. Use the "Plus" button to add credentials.';
+  position: absolute;
+  bottom: 50%;
+  padding: 10px;
+  color: #7d6161;
+}
+header {
+  padding: 10px;
+  font-size: 150%;
+  font-weight: 300;
+  background-color: var(--bg-red);
+  color: var(--bg-white);
+}
+#refresh,
+#plus {
+  width: 42px;
+  height: 22px;
+  text-align: center;
+  font-size: 200%;
+  float: right;
+  cursor: pointer;
+}
+#plus {
+  background: var(--bg-dark-i) url(plus.svg) center center no-repeat;
+  background-size: 18px;
+  margin-left: 10px;
+}
+#refresh {
+  background: var(--bg-dark-i) url(refresh.svg) center center no-repeat;
+  background-size: 12px;
+}
+
+#body {
+  display: flex;
+  flex: 1;
+  transition: transform 0.1s ease-out;
+}
+body.second #body {
+  transform: translateX(-100vw);
+}
+#body > * {
+  min-width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+#welcome > form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+#welcome > div {
+  padding: 10px;
+  color: var(--color-footer);
+}
+#welcome input {
+  width: 100%;
+  background-color: var(--bg-dark-i);
+  border: none;
+  padding: 10px;
+  text-align: center;
+  outline: none;
+  margin-top: 10px;
+  box-sizing: border-box;
+}
+
+#manager {
+  display: flex;
+  flex-flow: wrap;
+  flex: 1;
+  justify-content: center;
+  overflow: auto;
+  max-height: 400px;
+  margin: 3px 0;
+}
+#manager .box {
+  height: 48px;
+  line-height: 48px;
+  margin: 3px;
+  background-color: var(--bg-dark-i);
+  cursor: pointer;
+}
+#manager .entry {
+  width: 190px;
+  padding-right: 10px;
+  white-space: nowrap;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-indent: 52px;
+  background-image: url('icons/general.png');
+  background-size: 32px;
+  background-repeat: no-repeat;
+  background-position: center left 10px;
+  position: relative;
+}
+#manager .google {
+  background-image: url('icons/google.png');
+}
+#manager .logmein {
+  background-image: url('icons/logmein.png');
+}
+#manager .facebook {
+  background-image: url('icons/facebook.png');
+}
+#manager .nearlyfreespeech {
+  background-image: url('icons/nearlyfreespeech.png');
+}
+#manager .amazon {
+  background-image: url('icons/amazon.png');
+}
+#manager .flickr {
+  background-image: url('icons/flickr.png');
+}
+#manager .app_net {
+  background-image: url('icons/app_net.png');
+}
+#manager .outlook {
+  background-image: url('icons/outlook.png');
+}
+#manager .bitcoin {
+  background-image: url('icons/bitcoin.png');
+}
+#manager .github {
+  background-image: url('icons/github.png');
+}
+#manager .twitter {
+  background-image: url('icons/twitter.png');
+}
+#manager .dashlane {
+  background-image: url('icons/dashlane.png');
+}
+#manager .gmail {
+  background-image: url('icons/gmail.png');
+}
+#manager .yahoo {
+  background-image: url('icons/yahoo.png');
+}
+#manager .dropbox {
+  background-image: url('icons/dropbox.png');
+}
+#manager .zoho {
+  background-image: url('icons/zoho.png');
+}
+#manager .evernote {
+  background-image: url('icons/evernote.png');
+}
+#manager .microsoft {
+  background-image: url('icons/microsoft.png');
+}
+#manager .firefox {
+  background-image: url('icons/firefox.png');
+}
+#manager .mega {
+  background-image: url('icons/mega.png');
+}
+#manager .paypal {
+  background-image: url('icons/paypal.png');
+}
+
+#manager .entry.selected {
+  background-color: var(--bg-selected);
+}
+#manager .entry input[type=radio] {
+  display: none;
+}
+#manager .entry input[type=button] {
+  position: absolute;
+  border: none;
+  background-color: var(--bg-dark-ii);
+  background-image: url('close.svg');
+  background-position: center center;
+  background-size: 12px;
+  width: 16px;
+  height: 12px;
+  top: 0;
+  right: 0;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+}
+#manager .entry:not(:hover) input[type=button] {
+  display: none;
+}
+#token {
+  display: flex;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+  font-size: 300%;
+  font-weight: 300;
+}
+#token span:first-of-type {
+  margin-right: 10px;
+}
+
+#progress {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 20vw;
+  height: 5px;
+  background-color: red;
+}
+#progress.animate {
+  animation: period var(--period, 30s) infinite linear;
+}
+body:not(.second) #progress {
+  display: none;
+}
+
+@keyframes period {
+  from {
+    width: 100vw;
+  }
+  to {
+    width: 0;
+  }
+}
+
+#confirm {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#confirm > div {
+  background-color: #fff;
+  padding: 10px;
+}
+#confirm span {
+  margin-bottom: 20px;
+  display: block;
+}
+#confirm > div > div {
+  display: flex;
+  justify-content: flex-end;
+}
+#confirm input[type=button] {
+  width: 60px;
+  border: none;
+  background-color: var(--bg-dark-i);
+  cursor: pointer;
+  outline: none;
+}
+
+.hidden {
+  display: none !important;
+}
+.spacer {
+  flex: 1;
+}
