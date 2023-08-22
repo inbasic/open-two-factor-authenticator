@@ -1,32 +1,68 @@
 /* globals jsQR, secure */
 'use strict';
 
+const parse = data => {
+  if (data.includes('?')) {
+    const [pre, post] = data.split('?');
+    document.getElementById('name').value = decodeURIComponent(pre.replace('otpauth://totp/', ''));
+    const args = new URLSearchParams(post);
+    es.secret.value = args.get('secret');
+    es.enSecret.value = '';
+    document.getElementById('digits').value = args.get('digits') || 6;
+    document.getElementById('period').value = args.get('period') || 30;
+  }
+};
+
+// fix autofill
+document.getElementById('secret').onchange = e => {
+  const v = e.target.value;
+  parse(v);
+};
+
 document.getElementById('qr').addEventListener('click', () => {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
   input.acceptCharset = 'utf-8';
   input.onchange = () => {
-    console.log(input.files);
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
     const reader = new FileReader();
     const img = new Image();
     // Read in the image file as a data URL.
     reader.onload = e => {
-      img.onload = () => {
+      img.onload = async () => {
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         context.drawImage(img, 0, 0);
-        const code = jsQR(context.getImageData(0, 0, img.width, img.height).data, img.width, img.height);
+        let code = jsQR(context.getImageData(0, 0, img.width, img.height).data, img.width, img.height);
+
+        // use native method
+        if (!code) {
+          try {
+            // eslint-disable-next-line no-undef
+            const barcodeDetector = new BarcodeDetector({
+              formats: ['qr_code']
+            });
+            const barcodes = await barcodeDetector.detect(img);
+
+            for (const barcode of barcodes) {
+              if (barcode.rawValue && barcode.rawValue.startsWith('otpauth://totp/')) {
+                code = {
+                  data: barcode.rawValue
+                };
+              }
+            }
+          }
+          catch (e) {
+            console.log(e);
+          }
+        }
+
+
         if (code) {
-          const [pre, post] = code.data.split('?');
-          document.getElementById('name').value = decodeURIComponent(pre.replace('otpauth://totp/', ''));
-          const args = new URLSearchParams(post);
-          es.secret.value = args.get('secret');
-          es.enSecret.value = '';
-          document.getElementById('digits').value = args.get('digits') || 6;
-          document.getElementById('period').value = args.get('period') || 30;
+          parse(code.data);
+
           const data = code.data.toLowerCase();
           const option = [...document.querySelectorAll('#icon option')]
             .filter(o => {

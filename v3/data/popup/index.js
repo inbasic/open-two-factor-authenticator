@@ -106,10 +106,19 @@ const sortable = () => {
 };
 // totp
 const update = () => {
-  const token = totp.getOtp(secret);
   const [p1, p2] = [...es.token.querySelectorAll('span')];
-  p1.textContent = token.substr(0, totp.length / 2);
-  p2.textContent = token.substr(totp.length / 2);
+  try {
+    const token = totp.getOtp(secret);
+    p1.textContent = token.substr(0, totp.length / 2);
+    p2.textContent = token.substr(totp.length / 2);
+    p1.title = p2.title = '';
+  }
+  catch (e) {
+    console.error(e);
+    p1.textContent = 'ERR';
+    p2.textContent = '';
+    p1.title = p2.title = e.message;
+  }
 };
 // progress
 es.progress.addEventListener('animationiteration', update);
@@ -117,6 +126,7 @@ es.progress.addEventListener('animationiteration', update);
 es.manager.addEventListener('change', e => {
   const prepare = () => {
     const entry = e.target.closest('.entry');
+    // eslint-disable-next-line new-cap
     totp = new jsOTP.totp(entry.period, entry.digits);
     es.progress.style['--period'] = entry.period;
     const epoch = Date.now();
