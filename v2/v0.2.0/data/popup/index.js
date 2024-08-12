@@ -109,7 +109,10 @@ var sortable = () => {
 const update = () => {
   const token = totp.getOtp(secret);
   const [p1, p2] = [...es.token.querySelectorAll('span')];
-  p1.textContent = token.substr(0, totp.length / 2);
+  es.token.classList.remove('hidden');
+  es.progress.classList.remove('hidden');
+  document.getElementById('copy').style.display = 'inline-block';
+  p1.innerHTML = token.substr(0, totp.length / 2) + '<span class="non-selectable">&nbsp;</span>';
   p2.textContent = token.substr(totp.length / 2);
 };
 // progress
@@ -132,6 +135,7 @@ es.manager.addEventListener('change', e => {
   };
   if (e.isTrusted) {
     const old = es.manager.querySelector('.selected');
+    document.getElementById('copy').style.display = 'none';
     if (old) {
       old.classList.remove('selected');
       prepare();
@@ -178,7 +182,16 @@ document.getElementById('plus').addEventListener('click', () => {
     type: 'popup'
   }, () => window.close()));
 });
-// refresh
+document.getElementById('copy').addEventListener('click', () => {
+  if (totp && secret) {
+  const token = totp.getOtp(secret);
+  navigator.clipboard.writeText(token).then(() => {
+    console.log('TOTP copied to clipboard');
+  }).catch(err => {
+    console.error('Could not copy TOTP: ', err);
+  });
+  }
+});
 document.getElementById('refresh').addEventListener('click', () => {
   location.reload();
 });
