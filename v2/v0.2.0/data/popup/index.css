@@ -30,21 +30,35 @@ header {
   background-color: var(--bg-red);
   color: var(--bg-white);
 }
-#refresh,
+#refresh,#copy,
 #plus {
   width: 42px;
   height: 22px;
   text-align: center;
   font-size: 200%;
+  margin-left: 10px;
   float: right;
   cursor: pointer;
 }
 #plus {
   background: var(--bg-dark-i) url(plus.svg) center center no-repeat;
   background-size: 18px;
-  margin-left: 10px;
+}
+#copy {
+  display: none;
+  width: 42px;
+  height: 22px;
+  background-size: 18px;
+  background: var(--bg-dark-i) url(copy.svg) center center no-repeat;
+  background-size: 18px;
 }
 #refresh {
+  width: 42px;
+  height: 22px;
+  text-align: center;
+  font-size: 200%;
+  float: right;
+  cursor: pointer;
   background: var(--bg-dark-i) url(refresh.svg) center center no-repeat;
   background-size: 12px;
 }
@@ -211,8 +225,8 @@ body.second #body {
   font-size: 300%;
   font-weight: 300;
 }
-#token span:first-of-type {
-  margin-right: 10px;
+#token span.non-selectable {
+  user-select: none;
 }
 
 #progress {
