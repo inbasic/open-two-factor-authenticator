@@ -39,7 +39,6 @@ var secure = {};
       iv: vector
     }, key, convertStringToArrayBufferView(data)).then(result => new Promise(resolve => {
       const reader = new FileReader();
-      console.log(vector);
       reader.onload = () => resolve(reader.result);
       reader.readAsDataURL(new Blob([vector, result], {
         type: 'application/octet-binary'

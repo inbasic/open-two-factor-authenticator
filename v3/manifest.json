@@ -2,7 +2,7 @@
   "name": "Open Two-Factor Authenticator",
   "description": "__MSG_description__",
   "default_locale": "en",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "manifest_version": 3,
   "permissions": [
     "storage",
@@ -11,7 +11,8 @@
   "offline_enabled": true,
   "homepage_url": "https://webextension.org/listing/two-factor-authenticator.html",
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "scripts": ["worker.js"]
   },
   "icons": {
     "16": "/data/icons/16.png",
@@ -27,5 +28,11 @@
   },
   "commands": {
     "_execute_action": {}
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "jid0-Gn5jKmwQs6jL90ljMmn698q1bNn@jetpack",
+      "strict_min_version": "115.0"
+    }
   }
 }

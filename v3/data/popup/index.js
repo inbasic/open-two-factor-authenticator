@@ -76,6 +76,9 @@ const decrypt = () => chrome.storage.sync.get(null, async ps => {
   if (keys.length - ignored === 0) {
     document.body.classList.add('empty');
   }
+  else {
+    document.querySelector('.entry').click();
+  }
 });
 
 document.getElementById('welcome').addEventListener('submit', e => {
@@ -111,6 +114,9 @@ const update = () => {
     const token = totp.getOtp(secret);
     p1.textContent = token.substr(0, totp.length / 2);
     p2.textContent = token.substr(totp.length / 2);
+
+    document.getElementById('copy').style.display = 'inline-block';
+
     p1.title = p2.title = '';
   }
   catch (e) {
@@ -141,6 +147,7 @@ es.manager.addEventListener('change', e => {
   };
   if (e.isTrusted) {
     const old = es.manager.querySelector('.selected');
+    document.getElementById('copy').style.display = 'none';
     if (old) {
       old.classList.remove('selected');
       prepare();
@@ -192,4 +199,46 @@ document.getElementById('plus').addEventListener('click', () => {
 // refresh
 document.getElementById('refresh').addEventListener('click', () => {
   location.reload();
+});
+// copy
+document.getElementById('copy').addEventListener('click', () => {
+  if (totp && secret) {
+    const token = totp.getOtp(secret);
+    navigator.clipboard.writeText(token).catch(e => {
+      console.error(e);
+      alert('Could not copy TOTP: ' + e.message);
+    });
+  }
+});
+
+// effect
+document.querySelector('header').onclick = e => {
+  if (e.target.tagName === 'SPAN') {
+    e.target.classList.remove('active');
+    e.target.classList.add('active');
+  }
+};
+document.querySelector('header').ontransitionend = e => {
+  console.log(e);
+  e.target.classList.remove('active');
+};
+
+// key press
+document.addEventListener('keydown', e => {
+  console.log(e);
+  // Meta + Shift + N
+  if (e.altKey && e.shiftKey && e.code === 'KeyN') {
+    document.getElementById('plus').click();
+    e.preventDefault();
+  }
+  // Meta + C
+  else if ((e.metaKey || e.ctrlKey) && e.code === 'KeyC') {
+    document.getElementById('copy').click();
+    e.preventDefault();
+  }
+  // Meta + Shift + R
+  else if (e.altKey && e.shiftKey && e.code === 'KeyR') {
+    document.getElementById('refresh').click();
+    e.preventDefault();
+  }
 });

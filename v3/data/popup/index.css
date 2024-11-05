@@ -1,10 +1,16 @@
 :root {
-  --bg-dark-i: #f5f5f5;
-  --bg-dark-ii: #e2e2e2;
-  --bg-red: red;
-  --bg-white: whitesmoke;
-  --color-footer: #636363;
-  --bg-selected: #c0ffee;
+  --fg: light-dark(#474747, #e8e8e8);
+  --fg-dark: light-dark(#e8e8e8, #474747);
+  --fg-selected: #1f2530;
+  --fg-footer: light-dark(#636363, #969696);
+  --bg: light-dark(white, #292a2d);
+  --bg-dark-i:  light-dark(#f5f5f5, #202124);
+  --bg-dark-ii:  light-dark(#e2e2e2, #292a2d);
+  --bg-red: light-dark(red, #d70000);
+  --bg-white: light-dark(whitesmoke, #e3e3e3);
+  --bg-selected: light-dark(#c0ffee, #aacafe);
+
+  color-scheme: light dark;
 }
 body {
   width: 650px;
@@ -15,6 +21,8 @@ body {
   font-family: "Helvetica Neue", Helvetica, sans-serif;
   font-size: 13px;
   overflow: hidden;
+  color: var(--fg);
+  background-color: var(--bg);
 }
 body.empty::before {
   content: 'There is no credential to show either because the master password is wrong or there is no credential in the storage. Use the "Plus" button to add credentials.';
@@ -31,24 +39,37 @@ header {
   color: var(--bg-white);
 }
 #refresh,
+#copy,
 #plus {
   width: 42px;
   height: 22px;
   text-align: center;
   font-size: 200%;
+  margin-left: 10px;
   float: right;
   cursor: pointer;
+  transition: transform 0.2s;
+}
+#refresh.active,
+#copy.active,
+#plus.active {
+  transform: scale(0.95);
+  box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
 }
 #plus {
-  background: var(--bg-dark-i) url(plus.svg) center center no-repeat;
+  background: var(--bg-dark-i) url("plus.svg") center center no-repeat;
   background-size: 18px;
   margin-left: 10px;
 }
+#copy {
+  display: none;
+  background: var(--bg-dark-i) url("copy.svg") center center no-repeat;
+  background-size: 18px;
+}
 #refresh {
-  background: var(--bg-dark-i) url(refresh.svg) center center no-repeat;
+  background: var(--bg-dark-i) url("refresh.svg") center center no-repeat;
   background-size: 12px;
 }
-
 #body {
   display: flex;
   flex: 1;
@@ -62,7 +83,6 @@ body.second #body {
   display: flex;
   flex-direction: column;
 }
-
 #welcome > form {
   flex: 1;
   display: flex;
@@ -72,7 +92,7 @@ body.second #body {
 }
 #welcome > div {
   padding: 10px;
-  color: var(--color-footer);
+  color: var(--fg-footer);
 }
 #welcome input {
   width: 100%;
@@ -84,7 +104,6 @@ body.second #body {
   margin-top: 10px;
   box-sizing: border-box;
 }
-
 #manager {
   display: flex;
   flex-flow: wrap;
@@ -178,14 +197,14 @@ body.second #body {
 #manager .paypal {
   background-image: url('icons/paypal.png');
 }
-
 #manager .entry.selected {
+  color: var(--fg-selected);
   background-color: var(--bg-selected);
 }
-#manager .entry input[type=radio] {
+#manager .entry input[type="radio"] {
   display: none;
 }
-#manager .entry input[type=button] {
+#manager .entry input[type="button"] {
   position: absolute;
   border: none;
   background-color: var(--bg-dark-ii);
@@ -200,7 +219,7 @@ body.second #body {
   cursor: pointer;
   outline: none;
 }
-#manager .entry:not(:hover) input[type=button] {
+#manager .entry:not(:hover) input[type="button"] {
   display: none;
 }
 #token {
@@ -210,18 +229,15 @@ body.second #body {
   justify-content: center;
   font-size: 300%;
   font-weight: 300;
+  gap: 1ch;
 }
-#token span:first-of-type {
-  margin-right: 10px;
-}
-
 #progress {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 20vw;
   height: 5px;
-  background-color: red;
+  background-color: var(--bg-red);
 }
 #progress.animate {
   animation: period var(--period, 30s) infinite linear;
@@ -238,7 +254,6 @@ body:not(.second) #progress {
     width: 0;
   }
 }
-
 #confirm {
   position: fixed;
   width: 100vw;
@@ -249,7 +264,8 @@ body:not(.second) #progress {
   justify-content: center;
 }
 #confirm > div {
-  background-color: #fff;
+  background-color: var(--bg-dark-i);
+  color: var(--fg);
   padding: 10px;
 }
 #confirm span {
@@ -260,14 +276,14 @@ body:not(.second) #progress {
   display: flex;
   justify-content: flex-end;
 }
-#confirm input[type=button] {
-  width: 60px;
+#confirm input[type="button"] {
+  width: 70px;
+  height: 28px;
   border: none;
-  background-color: var(--bg-dark-i);
+  background-color: var(--bg-dark-ii);
   cursor: pointer;
   outline: none;
 }
-
 .hidden {
   display: none !important;
 }

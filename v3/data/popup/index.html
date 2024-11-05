@@ -7,8 +7,9 @@
 </head>
 <body>
   <header>Open Two Factor Authenticator
-    <span class="box" id="plus" title="Add new credentials"></span>
-    <span class="box" id="refresh" title="Restart"></span>
+    <span class="box" id="plus" title="Add new credentials (Alt + Shift + N)"></span>
+    <span class="box" id="copy" title="Copy TOTP to clipboard (Ctrl/Command + C)"></span>
+    <span class="box" id="refresh" title="Restart (Alt + Shift + R)"></span>
   </header>
   <div id="body">
     <div id="welcome">
@@ -17,7 +18,7 @@
         <input type="password" id="password" pattern=".{4,}" autofocus required>
       </form>
       <div>
-        1. Only credentials that can be unlocked with this master password are going to be listed
+        Only credentials unlockable with this master password will be displayed.
       </div>
     </div>
     <div>
