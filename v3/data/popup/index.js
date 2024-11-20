@@ -242,3 +242,8 @@ document.addEventListener('keydown', e => {
     e.preventDefault();
   }
 });
+
+// Firefox issue
+addEventListener('load', () => {
+  setTimeout(() => self.password.focus(), /Firefox/.test(navigator.userAgent) ? 300 : 0);
+});

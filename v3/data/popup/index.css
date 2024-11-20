@@ -25,11 +25,11 @@ body {
   background-color: var(--bg);
 }
 body.empty::before {
-  content: 'There is no credential to show either because the master password is wrong or there is no credential in the storage. Use the "Plus" button to add credentials.';
+  content: 'No credentials are available to display, either because the master password is incorrect or there are no credentials stored. Use the "Plus" button to add new credentials.';
   position: absolute;
   bottom: 50%;
   padding: 10px;
-  color: #7d6161;
+  text-align: center;
 }
 header {
   padding: 10px;
@@ -74,6 +74,7 @@ header {
   display: flex;
   flex: 1;
   transition: transform 0.1s ease-out;
+  transform: translateX(0);
 }
 body.second #body {
   transform: translateX(-100vw);
